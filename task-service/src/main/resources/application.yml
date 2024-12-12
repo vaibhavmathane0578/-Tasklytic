@@ -1,0 +1,20 @@
+server:
+  port: 8051                                     # Port for Task Service
+
+spring:
+  application:
+    name: task-service                           # Unique name for this microservice
+  datasource:
+    url: jdbc:mysql://localhost:3306/task_db     # MySQL database URL
+    username: root                               # MySQL username
+    password: 					                 # MySQL password
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL driver
+  jpa:
+    hibernate:
+      ddl-auto: update                           # Automatically updates the database schema
+    show-sql: true                               # Show SQL queries for debugging
+
+logging:
+  level:
+    org.springframework: INFO                   # General Spring log level
+    org.hibernate.SQL: DEBUG                    # Log SQL queries
