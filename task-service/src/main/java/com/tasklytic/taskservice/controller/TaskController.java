@@ -1,6 +1,7 @@
 package com.tasklytic.taskservice.controller;
 
 
+import com.tasklytic.taskservice.constants.Constants;
 import com.tasklytic.taskservice.dto.TaskDTO;
 import com.tasklytic.taskservice.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,35 +19,38 @@ public class TaskController {
 	    private TaskService taskService;
 
 	    // Get all tasks
-	    @GetMapping
+	    @GetMapping("/all")
 	    public ResponseEntity<List<TaskDTO>> getAllTasks() {
-	        return ResponseEntity.ok(taskService.getAllTasks());
+	        List<TaskDTO> taskDTOs = taskService.getAllTasks();
+	        return ResponseEntity.ok(taskDTOs);
 	    }
 
 	    // Get task by ID
 	    @GetMapping("/{id}")
 	    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
-	        return ResponseEntity.ok(taskService.getTaskById(id));
+	        TaskDTO taskDTO = taskService.getTaskById(id);
+	        return ResponseEntity.ok(taskDTO);
 	    }
 
-	    // Create a new task
-	    @PostMapping
-	    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO taskDTO) {
-	        return ResponseEntity.ok(taskService.createTask(taskDTO));
+	    // Create new task
+	    @PostMapping("/new")
+	    public ResponseEntity<String> createTask(@RequestBody TaskDTO taskDTO) {
+	        taskService.createTask(taskDTO);
+	        return ResponseEntity.ok(Constants.TASK_CREATED);
 	    }
 
-	    // Update a task
+	    // Update an existing task
 	    @PutMapping("/{id}")
-	    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
-	        return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
+	    public ResponseEntity<String> updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
+	        taskService.updateTask(id, taskDTO);
+	        return ResponseEntity.ok(Constants.TASK_UPDATED);
 	    }
 
-	    // Delete a task
+	    // Delete task by ID
 	    @DeleteMapping("/{id}")
-	    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+	    public ResponseEntity<String> deleteTask(@PathVariable Long id) {
 	        taskService.deleteTask(id);
-	        return ResponseEntity.noContent().build();
-	    }
-	}
+	        return ResponseEntity.ok(Constants.TASK_DELETED);
+	    }	}
 
 
