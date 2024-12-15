@@ -1,6 +1,7 @@
 package com.tasklytic.taskservice.model;
 
-import java.time.LocalDate;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,10 +24,27 @@ public class TaskEntity {
 	@Column(length = 500)
 	private String description;
 	
-	@Column(nullable = true)
-	private LocalDate dueDate;
+	@Column(nullable = false)
+	private String status;
 	
 	@Column(nullable = false)
-	private String status; // To-Do, In-Progress, Completed
+	private String priority;   //Low,  Medium, High
+	
+	@Column(nullable = true)
+	private Date dueDate;
+	
+	@Column(nullable = false)
+	private Long assigneeId;
+	
+	@Column(nullable = false)
+	private Long createdBy;
+	
+	@Column(nullable = false)
+	private Timestamp createdAt;
+	
+	@Column(nullable = false)
+	private Timestamp updatedAt;
+	
+	// To-Do, In-Progress, Completed
 
 }
