@@ -1,4 +1,4 @@
-package com.tasklytic.task_service;
+package com.tasklytic.taskservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

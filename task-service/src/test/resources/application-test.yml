@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: task-service-test                     # Name for the test environment
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa                                # Default username for H2
+    password:                                   # H2 doesn't require a password by default
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop                     # Creates schema on startup, drops it after tests
+      dialect: org.hibernate.dialect.H2Dialect # Hibernate dialect for H2
+    show-sql: true                              # Enable SQL logging for tests
+    properties:
+      hibernate.format_sql: true               # Pretty-print SQL in logs
+      hibernate.use_sql_comments: true         # Add comments to SQL for debugging
+
+server:
+  port: 0                                       # Randomize port to avoid conflicts during tests
+
+logging:
+  level:
+    org.springframework: DEBUG                 # Detailed Spring logs for testing
+    org.hibernate.SQL: DEBUG                   # Log all SQL queries
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Log SQL parameter bindings
+
+test:
+  enable: true       

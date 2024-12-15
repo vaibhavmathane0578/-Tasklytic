@@ -1,6 +1,8 @@
 package com.tasklytic.taskservice.dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -34,6 +36,9 @@ public class TaskDTO {
     private Long createdBy;
 
     private Long updatedBy;
+    
+    private Timestamp createdAt; 
+    private Timestamp updatedAt;  
 
 
 }
