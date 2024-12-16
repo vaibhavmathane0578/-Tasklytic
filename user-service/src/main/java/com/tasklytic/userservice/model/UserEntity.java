@@ -50,7 +50,7 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING) // Store as string in database
     @Column(nullable = false)
-    private String status;
+    private UserStatus status;
 
     @Column(nullable = false)
     private boolean isEmailVerified = false; // Whether the email is verified or not

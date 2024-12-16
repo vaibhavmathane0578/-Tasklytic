@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: user-service                           # Unique name for this microservice
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_db     # MySQL database URL for user service
+    username: root                               # MySQL username
+    password: root_password                      # MySQL password
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update                           # Automatically updates the database schema
+      dialect: org.hibernate.dialect.MySQL5InnoDBDialect  # MySQL dialect for Hibernate (for MySQL 8+)
+    show-sql: true                               # Show SQL queries for debugging
+    properties:
+      hibernate.format_sql: true                 # Formats SQL queries for better readability
+      hibernate.use_sql_comments: true           # Add SQL comments in the generated queries
+
+  mail:
+    host: smtp.gmail.com                         # SMTP host (using Gmail)
+    port: 587                                    # SMTP port
+    username:              # Email username (Gmail account)
+    password:             # Email password (Gmail account app-specific password)
+    properties:
+      mail:
+        smtp:
+          auth: true                             # Enable SMTP authentication
+          starttls:
+            enable: true                         # Enable STARTTLS
+          connectiontimeout: 5000                # Connection timeout in milliseconds
+          timeout: 5000                          # Timeout in milliseconds
+          writetimeout: 5000                     # Write timeout in milliseconds
+
+  redis:
+    host: localhost                              # Redis host
+    port: 6379                                   # Redis port
+    timeout: 6000                                # Redis connection timeout in milliseconds
+
+server:
+  port: 8081  # Set server port to 8081
+
+logging:
+  level:
+    org.springframework: INFO                   # General Spring log level
+    org.hibernate.SQL: DEBUG                    # Log SQL queries at the DEBUG level
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Log SQL parameters
+
+    jwt:
+  secret: YourSecretKeyHere                   # Use a secure secret key for signing
+  expiration: 3600000                        # Expiration time in milliseconds (e.g., 1 hour = 3600000 ms)
