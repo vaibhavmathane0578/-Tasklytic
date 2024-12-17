@@ -1,5 +1,6 @@
 package com.tasklytic.userservice.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,11 +41,38 @@ public class UserServiceImpl implements UserService {
 		// Check if email already exists
 		Optional<UserEntity> existingUser = userRepository.findByEmail(registerDTO.getEmail());
 		if (existingUser.isPresent()) {
-			throw new Constants.EmailAlreadyExistsException(
-					String.format(Constants.EMAIL_ALREADY_EXISTS, registerDTO.getEmail()));
+			UserEntity user = existingUser.get();
+
+			// Check if user is DELETED
+			if (user.getStatus() == UserStatus.DELETED) {
+				// Verify email OTP
+				boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
+				if (!isOtpVerified) {
+					throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
+				}
+				// Reactivate the existing user
+				user.setFirstName(registerDTO.getFirstName());
+				user.setLastName(registerDTO.getLastName());
+				user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+				user.setMobileNumber(registerDTO.getMobileNumber());
+				user.setRole(registerDTO.getRole());
+				user.setDepartment(registerDTO.getDepartment());
+				user.setStatus(UserStatus.ACTIVE);
+				user.setEmailVerified(true);
+
+				userRepository.save(user);
+
+				// Generate token
+				String token = jwtUtil.generateToken(user);
+
+				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), token);
+			} else {
+				throw new Constants.EmailAlreadyExistsException(
+						String.format(Constants.EMAIL_ALREADY_EXISTS, registerDTO.getEmail()));
+			}
 		}
-		
-		//verifyEmail my otp 
+
+		// verifyEmail my otp
 		boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
 		if (!isOtpVerified) {
 			throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED); // If OTP is not verified,
@@ -117,4 +145,109 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 	}
 
+	// OTP for Update
+	@Override
+	public void sendOtp(OtpRequestDTO otpRequestDTO) {
+		// Check if user exists
+		Optional<UserEntity> userOpt = userRepository.findByEmail(otpRequestDTO.getEmail());
+		if (!userOpt.isPresent()) {
+			throw new Constants.UserNotFoundException(
+					String.format(Constants.USER_NOT_FOUND, otpRequestDTO.getEmail()));
+		}
+
+		// Send OTP using OTP service
+		otpService.sendOtp(otpRequestDTO.getEmail());
+	}
+
+	@Override
+	public void updateUserDetails(UpdateUserDTO updateUserDTO) {
+	    Optional<UserEntity> userOpt = userRepository.findById(updateUserDTO.getUserId());
+	    if (!userOpt.isPresent()) {
+	        throw new Constants.UserNotFoundException(
+	                String.format(Constants.USER_NOT_FOUND, updateUserDTO.getUserId()));
+	    }
+
+	    UserEntity user = userOpt.get();
+
+	    // Verify OTP if any field other than profilePictureUrl is being updated
+	    boolean isOtpVerified = false;
+	    if (updateUserDTO.getFirstName() != null || updateUserDTO.getLastName() != null ||
+	        updateUserDTO.getMobileNumber() != null || updateUserDTO.getEmail() != null ||
+	        updateUserDTO.getPassword() != null || updateUserDTO.getRole() != null || 
+	        updateUserDTO.getDepartment() != null) {
+	        
+	        isOtpVerified = otpService.verifyEmailOtp(user.getEmail(), updateUserDTO.getOtp());
+	        if (!isOtpVerified) {
+	            throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
+	        }
+	    }
+
+	    // Update fields if provided, else retain old data
+	    if (updateUserDTO.getFirstName() != null) {
+	        user.setFirstName(updateUserDTO.getFirstName());
+	    }
+	    if (updateUserDTO.getLastName() != null) {
+	        user.setLastName(updateUserDTO.getLastName());
+	    }
+	    if (updateUserDTO.getMobileNumber() != null) {
+	        user.setMobileNumber(updateUserDTO.getMobileNumber());
+	    }
+	    if (updateUserDTO.getEmail() != null) {
+	        user.setEmail(updateUserDTO.getEmail());
+	    }
+	    if (updateUserDTO.getPassword() != null) {
+	        if (updateUserDTO.getPassword().equals(updateUserDTO.getConfirmPassword())) {
+	            user.setPassword(passwordEncoder.encode(updateUserDTO.getPassword()));
+	        } else {
+	            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+	        }
+	    }
+	    if (updateUserDTO.getRole() != null) {
+	        user.setRole(updateUserDTO.getRole());
+	    }
+	    if (updateUserDTO.getDepartment() != null) {
+	        user.setDepartment(updateUserDTO.getDepartment());
+	    }
+	    if (updateUserDTO.getProfilePictureUrl() != null) {
+	        user.setProfilePictureUrl(updateUserDTO.getProfilePictureUrl());
+	    }
+
+	    userRepository.save(user);
+	}
+
+	// Soft-Delete
+	@Override
+	public void softDeleteUser(UUID userId) {
+		Optional<UserEntity> userOpt = userRepository.findById(userId);
+		if (!userOpt.isPresent()) {
+			throw new Constants.UserNotFoundException(String.format(Constants.USER_NOT_FOUND, userId));
+		}
+
+		UserEntity user = userOpt.get();
+		user.setStatus(UserStatus.DELETED);
+		userRepository.save(user);
+	}
+
+	// Get all users by filter
+	@Override
+	public List<UserResponseDTO> getAllUsers(UserFilterDTO filterDTO) {
+		List<UserEntity> users;
+
+		// Filter users based on status
+		if (filterDTO.getStatus() != null) {
+			users = userRepository.findByStatus(filterDTO.getStatus());
+		} else {
+			users = userRepository.findAll();
+		}
+
+		// Convert UserEntity to UserResponseDTO
+		return users.stream().map(user -> new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
+				user.getEmail(), user.getMobileNumber(), user.getStatus())).toList();
+	}
+
+	// Fetch all users
+	@Override
+	public List<UserEntity> getAllUsers() {
+		return userRepository.findAll();
+	}
 }

@@ -19,12 +19,14 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-	@Value("${jwt.secret}")
-	private String secretKey;
+	private final String secretKey;
+    private final long jwtExpirationInMs;
 
-	@Value("${jwt.expiration}")
-	private long jwtExpirationInMs;
-
+    public JwtUtil(@Value("${jwt.secret}") String secretKey,
+                   @Value("${jwt.expiration}") long jwtExpirationInMs) {
+        this.secretKey = secretKey;
+        this.jwtExpirationInMs = jwtExpirationInMs;
+    }
 	private SecretKey getSigningKey() {
 		byte[] keyBytes = secretKey.getBytes();
 		return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS512.getJcaName());

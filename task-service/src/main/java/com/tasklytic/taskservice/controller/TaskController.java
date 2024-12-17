@@ -62,14 +62,14 @@ public class TaskController {
     }
 
     // Update an existing task
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<String> updateTask(@PathVariable Long id,@Valid @RequestBody TaskDTO taskDTO) {
         taskService.updateTask(id, taskDTO);
         return ResponseEntity.ok(Constants.TASK_UPDATED);
     }
 
     // Delete task by ID
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.ok(Constants.TASK_DELETED);

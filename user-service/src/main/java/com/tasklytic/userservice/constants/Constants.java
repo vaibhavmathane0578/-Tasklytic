@@ -17,10 +17,15 @@ public class Constants {
     public static final String EMAIL_NOT_VERIFIED = "Email address not verified. Please verify your email before proceeding.";
 
 	// Success Messages
-	public static final String USER_REGISTERED = "User registered successfully.";
-	public static final String USER_LOGGED_IN = "User logged in successfully.";
-	public static final String USER_LOGGED_OUT = "User logged out successfully.";
-	public static final String USER_UPDATED = "User updated successfully.";
+    public static final String USER_REGISTERED = "User registered successfully.";
+    public static final String USER_LOGGED_IN = "User logged in successfully.";
+    public static final String USER_LOGGED_OUT = "User logged out successfully.";
+    public static final String USER_UPDATED = "User updated successfully.";
+    public static final String OTP_SENT = "OTP sent successfully.";
+    public static final String USER_DELETED = "User deleted successfully.";
+    public static final String USER_LIST_FETCHED = "User list fetched successfully.";
+    public static final String OTP_VERIFIED = "OTP Verified Successfully";
+	public static final String PASSWORD_MISMATCH = "Confirm password must be same.";
 
 	// exceptions
 	@SuppressWarnings("serial")
@@ -86,4 +91,11 @@ public class Constants {
 	        }
 	    }
 
+	 
+	 @SuppressWarnings("serial")
+	    public static class PasswordMismatchException extends RuntimeException {
+	        public PasswordMismatchException(String message) {
+	            super(message);
+	        }
+	    }
 }
