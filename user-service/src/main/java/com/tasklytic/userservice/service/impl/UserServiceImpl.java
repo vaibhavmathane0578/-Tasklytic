@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 				// Generate token
 				String token = jwtUtil.generateToken(user);
 
-				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), token);
+				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
 			} else {
 				throw new Constants.EmailAlreadyExistsException(
 						String.format(Constants.EMAIL_ALREADY_EXISTS, registerDTO.getEmail()));
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
 		String token = jwtUtil.generateToken(user);
 
 		// Return response
-		return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), token);
+		return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
 	}
 
 	// Method for user login

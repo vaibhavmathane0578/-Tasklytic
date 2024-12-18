@@ -1,10 +1,12 @@
 package com.tasklytic.userservice.service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.tasklytic.userservice.constants.Constants;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
@@ -15,12 +17,17 @@ public class EmailService {
     // Send OTP email
     public void sendOtpEmail(String email, String otp) {
         try {
-            // Create a SimpleMailMessage object
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply-verification@tasklytic.com"); // Sender's email
-            message.setTo(email); // Recipient's email
-            message.setSubject("Your OTP Code");
-            message.setText("Dear User,\n\nYour OTP code is: " + otp + 
+        	MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            
+            String senderName = "Tasklytic";
+            String senderEmail = "dev.testverify.mail@gmail.com";
+            helper.setFrom(senderEmail, senderName);
+
+            helper.setTo(email); // Recipient's email
+            helper.setSubject("Your OTP Code");
+            helper.setText("Dear User,\n\nYour OTP code is: " + otp + 
                             "\n\nPlease use this code to verify your identity. The code is valid for 5 minutes.\n\nThank you!");
 
             // Attempt to send the email

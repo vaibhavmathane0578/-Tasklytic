@@ -68,7 +68,7 @@ public class UserController {
 	}
 
 	// Get All Users with optional filter
-	@PostMapping("/all")
+	@GetMapping("/all")
 	public ResponseEntity<List<UserResponseDTO>> getAllUsers(@RequestBody UserFilterDTO filterDTO) {
 		List<UserResponseDTO> users = userService.getAllUsers(filterDTO);
 		return ResponseEntity.ok(users);
