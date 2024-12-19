@@ -1,6 +1,6 @@
 package com.tasklytic.taskservice.controller;
 
-import com.tasklytic.taskservice.constants.Constants;
+import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.taskservice.dto.TaskDTO;
 import com.tasklytic.taskservice.service.TaskService;
 

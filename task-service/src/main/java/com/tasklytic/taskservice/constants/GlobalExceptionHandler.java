@@ -8,7 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.tasklytic.taskservice.constants.Constants.TaskNotFoundException;
+import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.TaskNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
