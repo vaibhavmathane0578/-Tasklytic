@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.tasklytic.userservice")
+@ComponentScan(basePackages = {"com.tasklytic.userservice", "com.tasklytic.shared"})
 public class UserServiceApplication {
 
 	public static void main(String[] args) {

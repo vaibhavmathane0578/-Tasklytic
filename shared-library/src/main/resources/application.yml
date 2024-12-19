@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: shared-library                      # Unique name for this microservice
+
+jwt:
+  secret: mySuperStrongSecretKeyForJWT12345               # Use a secure secret key for signing
+  expiration: 3600000                        # Expiration time in milliseconds (e.g., 1 hour = 3600000 ms)

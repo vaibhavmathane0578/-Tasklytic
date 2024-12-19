@@ -1,6 +1,6 @@
 package com.tasklytic.userservice.controller;
 
-import com.tasklytic.userservice.constants.Constants;
+import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.userservice.dto.*;
 import com.tasklytic.userservice.model.UserEntity;
 import com.tasklytic.userservice.service.UserService;

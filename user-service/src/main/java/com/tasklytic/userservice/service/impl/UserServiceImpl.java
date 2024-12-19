@@ -1,6 +1,8 @@
 package com.tasklytic.userservice.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,14 +11,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tasklytic.shared.utils.JwtUtil;
+import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.userservice.repository.UserRepository;
 import com.tasklytic.userservice.dto.*;
 import com.tasklytic.userservice.model.UserEntity;
 import com.tasklytic.userservice.model.UserStatus;
 import com.tasklytic.userservice.service.OtpService;
 import com.tasklytic.userservice.service.UserService;
-import com.tasklytic.userservice.utils.JwtUtil;
-import com.tasklytic.userservice.constants.*;
 
 @Service
 @Transactional
@@ -26,11 +28,11 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private JwtUtil jwtUtil;
-
-	@Autowired
 	private OtpService otpService;
-
+	
+	@Autowired
+	private JwtUtil jwtUtil;
+	
 	// Create an instance of BCryptPasswordEncoder for password encoding
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -63,7 +65,7 @@ public class UserServiceImpl implements UserService {
 				userRepository.save(user);
 
 				// Generate token
-				String token = jwtUtil.generateToken(user);
+				String token = generateJwtTokenForUser(user);
 
 				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
 			} else {
@@ -100,7 +102,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 
 		// Generate token
-		String token = jwtUtil.generateToken(user);
+		String token = generateJwtTokenForUser(user);
 
 		// Return response
 		return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		// Generate JWT Token
-		String token = jwtUtil.generateToken(user);
+		String token = generateJwtTokenForUser(user);
 
 		// Set the user status to ACTIVE on login
 		user.setStatus(UserStatus.ACTIVE);
@@ -250,4 +252,23 @@ public class UserServiceImpl implements UserService {
 	public List<UserEntity> getAllUsers() {
 		return userRepository.findAll();
 	}
+	
+	//Token logics
+	public String generateJwtTokenForUser(UserEntity user) {
+	    Map<String, Object> claims = new HashMap<>();
+	    claims.put("role", user.getRole());
+	    claims.put("email", user.getEmail());
+	    return jwtUtil.generateToken(claims, user.getId().toString());
+	}
+	
+	public boolean validateJwtToken(String token, UserEntity user) {
+	    return jwtUtil.validateToken(token, user.getId().toString());
+	}
+
+	public String extractUserIdFromToken(String token) {
+	    return jwtUtil.getSubjectFromToken(token); // This will return the user ID as a string
+	}
+
+
+	
 }

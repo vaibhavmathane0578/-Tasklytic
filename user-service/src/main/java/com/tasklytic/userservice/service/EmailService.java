@@ -4,7 +4,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.tasklytic.userservice.constants.Constants;
+import com.tasklytic.shared.constants.Constants;
 
 import jakarta.mail.internet.MimeMessage;
 

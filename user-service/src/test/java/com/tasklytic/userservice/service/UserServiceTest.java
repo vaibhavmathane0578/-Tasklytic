@@ -1,12 +1,12 @@
 package com.tasklytic.userservice.service;
 
-import com.tasklytic.userservice.constants.Constants;
+import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.userservice.dto.UserRegistrationDTO;
 import com.tasklytic.userservice.dto.UserRegistrationResponseDTO;
 import com.tasklytic.userservice.model.UserEntity;
 import com.tasklytic.userservice.model.UserStatus;
 import com.tasklytic.userservice.repository.UserRepository;
-import com.tasklytic.userservice.utils.JwtUtil;
+import com.tasklytic.shared.utils.JwtUtil;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

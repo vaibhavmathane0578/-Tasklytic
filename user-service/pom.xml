@@ -137,6 +137,13 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
+		<!--shared library -->
+		<dependency>
+			<groupId>com.tasklytic</groupId>
+			<artifactId>shared-library</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 
 	</dependencies>
 

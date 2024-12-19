@@ -3,7 +3,7 @@ package com.tasklytic.userservice.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import com.tasklytic.userservice.constants.Constants;
+import com.tasklytic.shared.constants.Constants;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

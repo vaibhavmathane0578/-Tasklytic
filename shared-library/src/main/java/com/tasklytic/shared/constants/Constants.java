@@ -1,12 +1,14 @@
-package com.tasklytic.userservice.constants;
+package com.tasklytic.shared.constants;
 
 public class Constants {
 
 	// Error Messages
-	public static final String USER_NOT_FOUND = "User with ID %d not found.";
-	public static final String INVALID_USER_DATA = "Invalid user data provided.";
+	public static final String TASK_NOT_FOUND = "Task with ID %d not found.";
+	public static final String INVALID_TASK_DATA = "Invalid task data provided.";
 	public static final String DATABASE_ERROR = "Error accessing the database.";
 	public static final String UNEXPECTED_ERROR = "An unexpected error occurred. Please try again.";
+	public static final String USER_NOT_FOUND = "User with ID %d not found.";
+	public static final String INVALID_USER_DATA = "Invalid user data provided.";
 	public static final String EMAIL_ALREADY_EXISTS = "Email already exists.";
 	public static final String MOBILE_ALREADY_EXISTS = "Mobile number already exists.";
 	public static final String INVALID_CREDENTIALS = "Invalid login credentials.";
@@ -26,6 +28,10 @@ public class Constants {
     public static final String USER_LIST_FETCHED = "User list fetched successfully.";
     public static final String OTP_VERIFIED = "OTP Verified Successfully";
 	public static final String PASSWORD_MISMATCH = "Confirm password must be same.";
+	public static final String TASK_CREATED = "Task created successfully.";
+	public static final String TASK_UPDATED = "Task updated successfully.";
+	public static final String TASK_DELETED = "Task deleted successfully.";
+
 
 	// exceptions
 	@SuppressWarnings("serial")
@@ -35,6 +41,7 @@ public class Constants {
 		}
 	}
 
+	
 	@SuppressWarnings("serial")
 	public static class UserAlreadyExistsException extends RuntimeException {
 		public UserAlreadyExistsException(String message) {
@@ -98,4 +105,12 @@ public class Constants {
 	            super(message);
 	        }
 	    }
+	 
+	 @SuppressWarnings("serial")
+		public static class TaskNotFoundException extends RuntimeException {
+			public TaskNotFoundException(String message) {
+				super(message);
+			}
+		}
+		
 }
