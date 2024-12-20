@@ -27,6 +27,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
+		<!-- Spring Security Dependency for JWT -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 
 		<!-- JJWT for JWT Utilities -->
 		<dependency>
@@ -45,6 +51,14 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
 			<scope>runtime</scope> <!-- Runtime scope for Jackson integration -->
+		</dependency>
+
+		<!-- Jakarta Servlet API (only if needed manually) -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>5.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Testing Dependencies -->
