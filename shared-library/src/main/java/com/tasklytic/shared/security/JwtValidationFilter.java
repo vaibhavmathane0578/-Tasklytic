@@ -1,13 +1,14 @@
 package com.tasklytic.shared.security;
 
 import com.tasklytic.shared.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.IOException;
 
 public class JwtValidationFilter extends OncePerRequestFilter {
@@ -18,12 +19,11 @@ public class JwtValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
-        // Extract the JWT token from Authorization header
         String token = getTokenFromRequest(request);
 
-        if (token != null && jwtUtil.validateToken(token, "expectedSubject")) { // Validate the token
-            // Proceed if token is valid
+        if (token != null && jwtUtil.validateToken(token, "expectedSubject")) {
+            String userId = jwtUtil.getClaimFromToken(token, "userId", String.class);
+            request.setAttribute("userId", userId); // Pass claims to downstream
             filterChain.doFilter(request, response);
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -31,7 +31,6 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         }
     }
 
-    // Extract the token from the Authorization header
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
