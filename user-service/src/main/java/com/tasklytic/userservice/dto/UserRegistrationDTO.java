@@ -1,4 +1,5 @@
 package com.tasklytic.userservice.dto;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ public class UserRegistrationDTO {
     private String lastName;
 
     @NotNull(message = "Mobile number is required")
-    @Size(min = 10, max = 10, message = "Mobile number must be 10 digits")
+    @Pattern(regexp = "\\d{10}", message = "Mobile number must be exactly 10 digits")
     private String mobileNumber;
 
     @NotNull(message = "Email is required")
@@ -29,7 +30,7 @@ public class UserRegistrationDTO {
 
     @NotNull(message = "Confirm password is required")
     @Size(min = 8, max = 20, message = "Password confirmation must match the original password")
-    private String confirmPassword;  // To confirm that the passwords match
+    private String confirmPassword;
 
     @NotNull(message = "Role is required")
     private String role;
@@ -38,5 +39,13 @@ public class UserRegistrationDTO {
     private String department;
 
     @NotNull(message = "OTP is required for email verification")
-    private String otp;  // To verify email
+    private String otp;
+
+    /**
+     * This method will ensure that the password and confirmPassword match.
+     * @return true if password matches confirmPassword, false otherwise
+     */
+    public boolean isPasswordMatching() {
+        return password != null && password.equals(confirmPassword);
+    }
 }

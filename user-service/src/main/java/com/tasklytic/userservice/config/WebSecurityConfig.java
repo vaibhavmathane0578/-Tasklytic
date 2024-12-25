@@ -10,6 +10,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class WebSecurityConfig {
 
+    private static final String[] PUBLIC_ENDPOINTS = {
+        "/api/users/register",
+        "/api/users/login",
+        "/api/users/sendOtp"
+    };
+
     @Bean
     public JwtValidationFilter jwtValidationFilter() {
         return new JwtValidationFilter();
@@ -17,10 +23,11 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Disable CSRF (customizable as per your app's needs)
+        http.csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity (customizable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Public endpoints
-                .anyRequest().authenticated() // Protect all other endpoints
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // Public endpoints
+                .requestMatchers("/api/users/**").authenticated()    // Protect API endpoints
+                .anyRequest().authenticated()                  // Protect any remaining endpoints
             )
             .addFilterBefore(jwtValidationFilter(), UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 

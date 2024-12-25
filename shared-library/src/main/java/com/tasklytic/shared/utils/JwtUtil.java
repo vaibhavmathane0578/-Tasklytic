@@ -4,11 +4,11 @@ import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -23,17 +23,23 @@ public class JwtUtil {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = secretKey.getBytes();
+        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS512.getJcaName());
     }
 
     // Generate a JWT Token with custom claims
     public String generateToken(Map<String, Object> claims, String subject) {
+        Date issuedAt = new Date();
+        Date expiration = new Date(issuedAt.getTime() + jwtExpirationInMs);
+        
+        System.out.println("Token Issued At: " + issuedAt);
+        System.out.println("Token Expiration: " + expiration);
+        
         return Jwts.builder()
                 .setClaims(claims) // Add claims
-                .setSubject(subject) // Set subject (e.g., user ID)
-                .setIssuedAt(new Date()) // Token issued time
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs)) // Expiry time
+                .setSubject(subject) // Set subject (e.g., user ID or email)
+                .setIssuedAt(issuedAt) // Token issued time
+                .setExpiration(expiration) // Expiry time
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Sign with secret key
                 .compact();
     }
@@ -48,7 +54,10 @@ public class JwtUtil {
     public boolean validateToken(String token, String expectedSubject) {
         try {
             String tokenSubject = getSubjectFromToken(token);
-            return tokenSubject.equals(expectedSubject) && !isTokenExpired(token);
+            boolean isValid = tokenSubject.equals(expectedSubject) && !isTokenExpired(token);
+            System.out.println("Token Subject: " + tokenSubject);
+            System.out.println("Expected Subject: " + expectedSubject);
+            return isValid;
         } catch (JwtException | IllegalArgumentException e) {
             return false; // Token is invalid or expired
         }
@@ -57,7 +66,9 @@ public class JwtUtil {
     // Check if the token is expired
     private boolean isTokenExpired(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.getExpiration().before(new Date());
+        boolean isExpired = claims.getExpiration().before(new Date());
+        System.out.println("Token Expiration: " + claims.getExpiration());
+        return isExpired;
     }
 
     // Extract all claims from the token

@@ -112,5 +112,13 @@ public class Constants {
 				super(message);
 			}
 		}
+	 
+	// Custom exception for JWT validation errors
+	    @SuppressWarnings("serial")
+		public static class JwtValidationException extends RuntimeException {
+	        public JwtValidationException(String message, Throwable cause) {
+	            super(message, cause);
+	        }
+	    }
 		
 }

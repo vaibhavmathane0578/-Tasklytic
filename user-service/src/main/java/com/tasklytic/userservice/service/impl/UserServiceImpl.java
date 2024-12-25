@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class UserServiceImpl implements UserService {
 	
 	// Create an instance of BCryptPasswordEncoder for password encoding
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	// Create a logger instance
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
 	// Method to register a new user
 	@Override
@@ -52,6 +56,10 @@ public class UserServiceImpl implements UserService {
 				if (!isOtpVerified) {
 					throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
 				}
+				// Validate password confirmation before proceeding
+		        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
+		            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+		        }
 				// Reactivate the existing user
 				user.setFirstName(registerDTO.getFirstName());
 				user.setLastName(registerDTO.getLastName());
@@ -87,6 +95,11 @@ public class UserServiceImpl implements UserService {
 			throw new Constants.MobileAlreadyExistsException(
 					String.format(Constants.MOBILE_ALREADY_EXISTS, registerDTO.getMobileNumber()));
 		}
+		
+		// Validate password confirmation before proceeding
+        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
+            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+        }
 
 		// Create and save the user
 		UserEntity user = new UserEntity();
@@ -175,7 +188,7 @@ public class UserServiceImpl implements UserService {
 	    boolean isOtpVerified = false;
 	    if (updateUserDTO.getFirstName() != null || updateUserDTO.getLastName() != null ||
 	        updateUserDTO.getMobileNumber() != null || updateUserDTO.getEmail() != null ||
-	        updateUserDTO.getPassword() != null || updateUserDTO.getRole() != null || 
+	        updateUserDTO.getPassword() != null||updateUserDTO.getConfirmPassword() != null || updateUserDTO.getRole() != null || 
 	        updateUserDTO.getDepartment() != null) {
 	        
 	        isOtpVerified = otpService.verifyEmailOtp(user.getEmail(), updateUserDTO.getOtp());
@@ -233,19 +246,26 @@ public class UserServiceImpl implements UserService {
 	// Get all users by filter
 	@Override
 	public List<UserResponseDTO> getAllUsers(UserFilterDTO filterDTO) {
-		List<UserEntity> users;
+		 log.info("Fetching all users");
+	    List<UserEntity> users;
 
-		// Filter users based on status
-		if (filterDTO.getStatus() != null) {
-			users = userRepository.findByStatus(filterDTO.getStatus());
-		} else {
-			users = userRepository.findAll();
-		}
+	    // Filter users based on status
+	    if (filterDTO.getStatus() != null) {
+	        users = userRepository.findByStatus(filterDTO.getStatus());
+	        log.info("Number of users retrieved: {}", users.size());
+	    } else {
+	        users = userRepository.findAll();
+	        
+	        log.info("Number of users retrieved: {}", users.size());
+	    }
 
-		// Convert UserEntity to UserResponseDTO
-		return users.stream().map(user -> new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
-				user.getEmail(), user.getMobileNumber(), user.getStatus())).toList();
+	    // Convert UserEntity to UserResponseDTO
+	    return users.stream().map(user -> new UserResponseDTO(
+	            user.getId(), user.getFirstName(), user.getLastName(),
+	            user.getEmail(), user.getMobileNumber(), user.getStatus())
+	    ).toList();
 	}
+
 
 	// Fetch all users
 	@Override
@@ -254,21 +274,21 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	//Token logics
-	public String generateJwtTokenForUser(UserEntity user) {
+	private String generateJwtTokenForUser(UserEntity user) {
+	    // Define claims for the JWT
 	    Map<String, Object> claims = new HashMap<>();
-	    claims.put("role", user.getRole());
 	    claims.put("email", user.getEmail());
-	    return jwtUtil.generateToken(claims, user.getId().toString());
+	    claims.put("role", user.getRole().toString());
+
+	    // Use JwtUtil to generate the token with the claims
+	    return jwtUtil.generateToken(claims, user.getEmail());
 	}
-	
+
 	public boolean validateJwtToken(String token, UserEntity user) {
-	    return jwtUtil.validateToken(token, user.getId().toString());
+	    return jwtUtil.validateToken(token, user.getEmail().toString());
 	}
 
 	public String extractUserIdFromToken(String token) {
 	    return jwtUtil.getSubjectFromToken(token); // This will return the user ID as a string
 	}
-
-
-	
 }

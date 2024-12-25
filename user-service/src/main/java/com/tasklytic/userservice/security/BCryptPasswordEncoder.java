@@ -1,4 +1,6 @@
-package org.springframework.security.crypto.bcrypt;
+package com.tasklytic.userservice.security;
+
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class BCryptPasswordEncoder {
 

@@ -2,12 +2,15 @@ package com.tasklytic.userservice.controller;
 
 import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.userservice.dto.*;
-import com.tasklytic.userservice.model.UserEntity;
+import com.tasklytic.userservice.model.UserStatus;
 import com.tasklytic.userservice.service.UserService;
 
 import jakarta.validation.Valid;
 
 import com.tasklytic.userservice.service.OtpService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +27,9 @@ public class UserController {
 
 	@Autowired
 	private OtpService otpService;
+
+	// Create a logger instance
+	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
 	// User Registration (including Reactivation)
 	@PostMapping("/register")
@@ -69,24 +75,19 @@ public class UserController {
 
 	// Get All Users with optional filter
 	@GetMapping("/all")
-	public ResponseEntity<List<UserResponseDTO>> getAllUsers(@RequestBody UserFilterDTO filterDTO) {
+	public ResponseEntity<List<UserResponseDTO>> getAllUsers(@RequestParam(required = false) UserStatus status) {
+		log.info("Request received to get all users.");
+		UserFilterDTO filterDTO = new UserFilterDTO();
+		filterDTO.setStatus(status); // Assuming filterDTO has a setter for status
 		List<UserResponseDTO> users = userService.getAllUsers(filterDTO);
-		return ResponseEntity.ok(users);
-	}
-
-	// Fetch All Users without filter
-	@GetMapping("/all-users")
-	public ResponseEntity<List<UserEntity>> getAllUsersWithoutFilter() {
-		List<UserEntity> users = userService.getAllUsers();
 		return ResponseEntity.ok(users);
 	}
 
 	// Verify OTP for email (used for registration or any email-related updates)
 	@PostMapping("/verify-otp")
 	public ResponseEntity<String> verifyEmailOtp(@RequestBody @Valid OtpVerifyRequestDTO otpVerifyRequestDTO) {
-	    otpService.verifyEmailOtp(otpVerifyRequestDTO.getEmail(), otpVerifyRequestDTO.getOtp());
-	    return ResponseEntity.ok(Constants.OTP_VERIFIED);  // Return success message
+		otpService.verifyEmailOtp(otpVerifyRequestDTO.getEmail(), otpVerifyRequestDTO.getOtp());
+		return ResponseEntity.ok(Constants.OTP_VERIFIED); // Return success message
 	}
-
 
 }
