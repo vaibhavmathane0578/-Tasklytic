@@ -37,14 +37,14 @@ public class JwtUtil {
         
         return Jwts.builder()
                 .setClaims(claims) // Add claims
-                .setSubject(subject) // Set subject (e.g., user ID or email)
-                .setIssuedAt(issuedAt) // Token issued time
-                .setExpiration(expiration) // Expiry time
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Sign with secret key
+                .setSubject(subject) // Set subject (email)
+                .setIssuedAt(issuedAt) 
+                .setExpiration(expiration) 
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512) 
                 .compact();
     }
 
-    // Extract subject (e.g., user ID) from the token
+    // Extract subject (emailId) from the token
     public String getSubjectFromToken(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getSubject();
@@ -59,7 +59,7 @@ public class JwtUtil {
             System.out.println("Expected Subject: " + expectedSubject);
             return isValid;
         } catch (JwtException | IllegalArgumentException e) {
-            return false; // Token is invalid or expired
+            return false; 
         }
     }
 

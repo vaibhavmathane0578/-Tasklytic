@@ -76,13 +76,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
- // Handle EmailNotVerifiedException
+    // Handle EmailNotVerifiedException
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<Object> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("message", ex.getMessage());  // Using the exception's message
-        errorResponse.put("status", HttpStatus.BAD_REQUEST.value()); // 400 for bad request
+        errorResponse.put("message", ex.getMessage()); 
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

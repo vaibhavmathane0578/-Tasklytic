@@ -1,5 +1,6 @@
 package com.tasklytic.shared.security;
 
+import com.tasklytic.shared.constants.Constants;
 import com.tasklytic.shared.utils.JwtUtil;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
@@ -10,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,24 +20,19 @@ public class JwtValidationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtValidationFilter.class);
+    private final List<String> publicEndpoints;
 
-    // Define public endpoints that don't require authentication
-    private static final List<String> PUBLIC_ENDPOINTS = List.of(
-        "/api/users/register",
-        "/api/users/login",
-        "/api/users/sendOtp"
-    );
+    public JwtValidationFilter(List<String> publicEndpoints) {
+        this.publicEndpoints = publicEndpoints;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        logger.info("Incoming request URI: {}", requestURI);
 
         // Skip JWT validation for public endpoints
-        if (PUBLIC_ENDPOINTS.contains(requestURI)) {
-            logger.info("Public endpoint accessed: {}, skipping JWT validation.", requestURI);
+        if (publicEndpoints.contains(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,76 +40,59 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         // Extract the JWT token from the request
         String token = getTokenFromRequest(request);
         if (token != null) {
-            logger.info("Token found in request: {}", token);
-
-            // Validate the token
             try {
+                // Validate the token
                 if (validateTokenAndSetAuthentication(token)) {
-                    logger.info("Token is valid. Proceeding to the next filter.");
                     filterChain.doFilter(request, response);
                     return;
                 }
             } catch (Exception e) {
-                logger.error("JWT validation failed: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired JWT token");
+                response.getWriter().write(Constants.JWT_TOKEN_INVALID);
                 return;
             }
         }
 
-        logger.warn("No token found or token is invalid. Blocking request.");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("Authentication required");
+        response.getWriter().write(Constants.JWT_TOKEN_INVALID);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            logger.info("Authorization header found. Extracting token.");
             return bearerToken.substring(7);
         }
         return null;
     }
 
-    
     @SuppressWarnings("unchecked")
-	private boolean validateTokenAndSetAuthentication(String token) {
-        try {
-            // Extract subject (e.g., user identifier)
-            String subject = jwtUtil.getSubjectFromToken(token);
-            logger.info("Extracted subject: {}", subject);
+    private boolean validateTokenAndSetAuthentication(String token) {
+        // Extract subject (e.g., user identifier)
+        String subject = jwtUtil.getSubjectFromToken(token);
 
-            // Safely extract roles claim from the token
-            List<String> roles = jwtUtil.getClaimFromToken(token, "roles", List.class);
+        // Safely extract roles claim from the token
+        List<String> roles = jwtUtil.getClaimFromToken(token, "roles", List.class);
 
-            if (roles == null) {
-                logger.warn("Roles claim is missing or null in the token.");
-                roles = List.of(); // Default to an empty list
-            }
-
-            logger.info("Extracted roles: {}", roles);
-
-            // Validate the token
-            if (subject != null && jwtUtil.validateToken(token, subject)) {
-                // Convert roles to granted authorities
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-
-                // Create an authentication token
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(subject, null, authorities);
-
-                // Set the authentication in the security context
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("Authentication set for user: {}", subject);
-                return true;
-            } else {
-                logger.warn("Token validation failed for subject: {}", subject);
-            }
-        } catch (Exception e) {
-            logger.error("JWT validation failed: {}", e.getMessage(), e);
+        if (roles == null) {
+            roles = List.of(); // Default to an empty list
         }
+
+        // Validate the token
+        if (subject != null && jwtUtil.validateToken(token, subject)) {
+            // Convert roles to granted authorities
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+
+            // Create an authentication token
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(subject, null, authorities);
+
+            // Set the authentication in the security context
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return true;
+        }
+
         return false; // Validation failed
     }
 }

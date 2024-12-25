@@ -35,32 +35,24 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private JwtUtil jwtUtil;
 	
-	// Create an instance of BCryptPasswordEncoder for password encoding
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-	// Create a logger instance
+	
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-	// Method to register a new user
+	//Register
 	@Override
 	public UserRegistrationResponseDTO registerUser(UserRegistrationDTO registerDTO) {
-
-		// Check if email already exists
 		Optional<UserEntity> existingUser = userRepository.findByEmail(registerDTO.getEmail());
 		if (existingUser.isPresent()) {
 			UserEntity user = existingUser.get();
-
-			// Check if user is DELETED
 			if (user.getStatus() == UserStatus.DELETED) {
-				// Verify email OTP
 				boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
 				if (!isOtpVerified) {
 					throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
 				}
-				// Validate password confirmation before proceeding
 		        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
 		            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
 		        }
-				// Reactivate the existing user
 				user.setFirstName(registerDTO.getFirstName());
 				user.setLastName(registerDTO.getLastName());
 				user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
@@ -72,7 +64,6 @@ public class UserServiceImpl implements UserService {
 
 				userRepository.save(user);
 
-				// Generate token
 				String token = generateJwtTokenForUser(user);
 
 				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
@@ -81,27 +72,19 @@ public class UserServiceImpl implements UserService {
 						String.format(Constants.EMAIL_ALREADY_EXISTS, registerDTO.getEmail()));
 			}
 		}
-
-		// verifyEmail my otp
 		boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
 		if (!isOtpVerified) {
 			throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED); // If OTP is not verified,
 																							// throw exception
 		}
-
-		// Check if mobile number already exists
 		Optional<UserEntity> existingMobile = userRepository.findByMobileNumber(registerDTO.getMobileNumber());
 		if (existingMobile.isPresent()) {
 			throw new Constants.MobileAlreadyExistsException(
 					String.format(Constants.MOBILE_ALREADY_EXISTS, registerDTO.getMobileNumber()));
 		}
-		
-		// Validate password confirmation before proceeding
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
             throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
         }
-
-		// Create and save the user
 		UserEntity user = new UserEntity();
 		user.setFirstName(registerDTO.getFirstName());
 		user.setLastName(registerDTO.getLastName());
@@ -111,43 +94,34 @@ public class UserServiceImpl implements UserService {
 		user.setRole(registerDTO.getRole());
 		user.setDepartment(registerDTO.getDepartment());
 		user.setStatus(UserStatus.ACTIVE);
-		user.setEmailVerified(true); // Since email is verified
+		user.setEmailVerified(true); 
 		userRepository.save(user);
 
-		// Generate token
 		String token = generateJwtTokenForUser(user);
 
-		// Return response
 		return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
 	}
 
-	// Method for user login
+	//Login
 	@Override
 	public UserLoginResponseDTO loginUser(UserLoginDTO loginDTO) {
 		Optional<UserEntity> existingUser = userRepository.findByEmail(loginDTO.getEmail());
 		if (!existingUser.isPresent()) {
 			throw new Constants.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
 		}
-
 		UserEntity user = existingUser.get();
-
-		// Validate password using BCryptPasswordEncoder
 		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
 			throw new Constants.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
 		}
-
-		// Generate JWT Token
 		String token = generateJwtTokenForUser(user);
-
-		// Set the user status to ACTIVE on login
 		user.setStatus(UserStatus.ACTIVE);
 		userRepository.save(user);
 
 		return new UserLoginResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), token);
 
 	}
-
-	// Method to log out user and update status to INACTIVE
+	
+	//Log-out
 	@Override
 	public void logoutUser(UUID userId) {
 		Optional<UserEntity> existingUser = userRepository.findById(userId);
@@ -160,7 +134,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 	}
 
-	// OTP for Update
+	//OTP
 	@Override
 	public void sendOtp(OtpRequestDTO otpRequestDTO) {
 		// Check if user exists
@@ -169,8 +143,6 @@ public class UserServiceImpl implements UserService {
 			throw new Constants.UserNotFoundException(
 					String.format(Constants.USER_NOT_FOUND, otpRequestDTO.getEmail()));
 		}
-
-		// Send OTP using OTP service
 		otpService.sendOtp(otpRequestDTO.getEmail());
 	}
 
@@ -183,8 +155,6 @@ public class UserServiceImpl implements UserService {
 	    }
 
 	    UserEntity user = userOpt.get();
-
-	    // Verify OTP if any field other than profilePictureUrl is being updated
 	    boolean isOtpVerified = false;
 	    if (updateUserDTO.getFirstName() != null || updateUserDTO.getLastName() != null ||
 	        updateUserDTO.getMobileNumber() != null || updateUserDTO.getEmail() != null ||
@@ -196,8 +166,6 @@ public class UserServiceImpl implements UserService {
 	            throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
 	        }
 	    }
-
-	    // Update fields if provided, else retain old data
 	    if (updateUserDTO.getFirstName() != null) {
 	        user.setFirstName(updateUserDTO.getFirstName());
 	    }
@@ -248,39 +216,30 @@ public class UserServiceImpl implements UserService {
 	public List<UserResponseDTO> getAllUsers(UserFilterDTO filterDTO) {
 		 log.info("Fetching all users");
 	    List<UserEntity> users;
-
-	    // Filter users based on status
 	    if (filterDTO.getStatus() != null) {
 	        users = userRepository.findByStatus(filterDTO.getStatus());
 	        log.info("Number of users retrieved: {}", users.size());
 	    } else {
 	        users = userRepository.findAll();
-	        
 	        log.info("Number of users retrieved: {}", users.size());
 	    }
-
-	    // Convert UserEntity to UserResponseDTO
 	    return users.stream().map(user -> new UserResponseDTO(
 	            user.getId(), user.getFirstName(), user.getLastName(),
 	            user.getEmail(), user.getMobileNumber(), user.getStatus())
 	    ).toList();
 	}
 
-
-	// Fetch all users
 	@Override
 	public List<UserEntity> getAllUsers() {
 		return userRepository.findAll();
 	}
 	
-	//Token logics
+	//generate token
 	private String generateJwtTokenForUser(UserEntity user) {
 	    // Define claims for the JWT
 	    Map<String, Object> claims = new HashMap<>();
 	    claims.put("email", user.getEmail());
 	    claims.put("role", user.getRole().toString());
-
-	    // Use JwtUtil to generate the token with the claims
 	    return jwtUtil.generateToken(claims, user.getEmail());
 	}
 
@@ -289,6 +248,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public String extractUserIdFromToken(String token) {
-	    return jwtUtil.getSubjectFromToken(token); // This will return the user ID as a string
+	    return jwtUtil.getSubjectFromToken(token); 
 	}
 }

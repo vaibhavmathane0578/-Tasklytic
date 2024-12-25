@@ -31,6 +31,7 @@ public class Constants {
 	public static final String TASK_CREATED = "Task created successfully.";
 	public static final String TASK_UPDATED = "Task updated successfully.";
 	public static final String TASK_DELETED = "Task deleted successfully.";
+	public static final String JWT_TOKEN_INVALID = "Token is invalid or expired.";
 
 
 	// exceptions
