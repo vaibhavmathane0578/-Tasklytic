@@ -67,32 +67,23 @@ public class JwtValidationFilter extends OncePerRequestFilter {
 
     @SuppressWarnings("unchecked")
     private boolean validateTokenAndSetAuthentication(String token) {
-        // Extract subject (e.g., user identifier)
         String subject = jwtUtil.getSubjectFromToken(token);
-
-        // Safely extract roles claim from the token
         List<String> roles = jwtUtil.getClaimFromToken(token, "roles", List.class);
 
         if (roles == null) {
             roles = List.of(); // Default to an empty list
         }
-
-        // Validate the token
         if (subject != null && jwtUtil.validateToken(token, subject)) {
             // Convert roles to granted authorities
             List<SimpleGrantedAuthority> authorities = roles.stream()
                     .map(SimpleGrantedAuthority::new)
                     .toList();
-
-            // Create an authentication token
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(subject, null, authorities);
-
-            // Set the authentication in the security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return true;
         }
 
-        return false; // Validation failed
+        return false; 
     }
 }
