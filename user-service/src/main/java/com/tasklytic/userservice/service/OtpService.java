@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.Exceptions;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -38,11 +39,11 @@ public class OtpService {
 		String storedOtp = redisTemplate.opsForValue().get(getOtpKey(email));
 
 		if (storedOtp == null) {
-			throw new Constants.OtpNotFoundException(String.format(Constants.OTP_NOT_FOUND_OR_EXPIRED, email));
+			throw new Exceptions.OtpNotFoundException(String.format(Constants.OTP_NOT_FOUND_OR_EXPIRED, email));
 		}
 
 		if (!storedOtp.equals(otp)) {
-			throw new Constants.InvalidOtpException(Constants.OTP_INVALID);
+			throw new Exceptions.InvalidOtpException(Constants.OTP_INVALID);
 		}
 
 		// OTP is valid, delete OTP from Redis after successful verification

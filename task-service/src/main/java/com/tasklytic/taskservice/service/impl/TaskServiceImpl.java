@@ -1,6 +1,7 @@
 package com.tasklytic.taskservice.service.impl;
 
 import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.Exceptions;
 import com.tasklytic.taskservice.dto.TaskDTO;
 import com.tasklytic.taskservice.model.TaskEntity;
 import com.tasklytic.taskservice.repository.TaskRepository;
@@ -35,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         TaskEntity existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new Constants.TaskNotFoundException(String.format(Constants.TASK_NOT_FOUND, id)));
+                .orElseThrow(() -> new Exceptions.TaskNotFoundException(String.format(Constants.TASK_NOT_FOUND, id)));
         modelMapper.map(taskDTO, existingTask);  // Map only the updated fields
         existingTask.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         TaskEntity updatedTask = taskRepository.save(existingTask);
@@ -50,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO getTaskById(Long id) {
         TaskEntity task = taskRepository.findById(id)
-                .orElseThrow(() -> new Constants.TaskNotFoundException(String.format(Constants.TASK_NOT_FOUND, id)));
+                .orElseThrow(() -> new Exceptions.TaskNotFoundException(String.format(Constants.TASK_NOT_FOUND, id)));
         return modelMapper.map(task, TaskDTO.class);
     }
 

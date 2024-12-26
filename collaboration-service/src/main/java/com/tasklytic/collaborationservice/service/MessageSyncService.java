@@ -1,30 +1,15 @@
 package com.tasklytic.collaborationservice.service;
 
+import com.tasklytic.collaborationservice.dto.ChatMessageDTO;
+import com.tasklytic.collaborationservice.dto.CollaborationSessionDTO;
+
 import java.util.List;
 
-import org.springframework.stereotype.Service;
+public interface MessageSyncService {
 
-import com.tasklytic.collaborationservice.model.ChatMessageEntity;
-import com.tasklytic.collaborationservice.repository.ChatMessageRepository;
+    // Synchronize chat messages across systems/services
+    void syncChatMessages(List<ChatMessageDTO> chatMessageDTOList);
 
-@Service
-public class MessageSyncService {
-
-    private final ChatMessageRepository chatMessageRepository;
-
-    public MessageSyncService(ChatMessageRepository chatMessageRepository) {
-        this.chatMessageRepository = chatMessageRepository;
-    }
-
-    public List<ChatMessageEntity> getUndeliveredMessages(Long sessionId) {
-        return chatMessageRepository.findBySessionId(sessionId)
-                .stream()
-                .filter(message -> !message.isDelivered())
-                .toList();
-    }
-
-    public void markMessagesAsDelivered(List<ChatMessageEntity> messages) {
-        messages.forEach(message -> message.setDelivered(true));
-        chatMessageRepository.saveAll(messages);
-    }
+    // Synchronize collaboration session events across systems/services
+    void syncCollaborationSession(CollaborationSessionDTO collaborationSessionDTO);
 }

@@ -1,18 +1,13 @@
 package com.tasklytic.collaborationservice.service;
 
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
+import com.tasklytic.collaborationservice.dto.ChatMessageDTO;
+import com.tasklytic.collaborationservice.dto.CollaborationSessionDTO;
 
-@Service
-public class KafkaProducer {
+public interface KafkaProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    // Publish collaboration session creation to Kafka topic
+    void sendCollaborationSessionEvent(CollaborationSessionDTO collaborationSessionDTO);
 
-    public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
-
-    public void sendMessage(String message) {
-        kafkaTemplate.send("chat-messages", message);
-    }
+    // Publish chat message to Kafka topic
+    void sendChatMessageEvent(ChatMessageDTO chatMessageDTO);
 }

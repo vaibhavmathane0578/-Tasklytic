@@ -1,12 +1,17 @@
 package com.tasklytic.collaborationservice.repository;
 
+import com.tasklytic.collaborationservice.model.CollaborationSessionEntity;
+import org.springframework.data.cassandra.repository.CassandraRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-import org.springframework.data.cassandra.repository.CassandraRepository;
-import com.tasklytic.collaborationservice.model.CollaborationSessionEntity;
+@Repository
+public interface CollaborationSessionRepository extends CassandraRepository<CollaborationSessionEntity, String> {
 
-public interface CollaborationSessionRepository extends CassandraRepository<CollaborationSessionEntity, Long> {
+    // Custom query to find a collaboration session by its ID
+    Optional<CollaborationSessionEntity> findById(String id);
 
-	Optional<CollaborationSessionEntity> findById(String sessionId);
-    // Custom query methods if needed
+    // Custom query to find a collaboration session by task ID (to relate sessions to tasks)
+    Optional<CollaborationSessionEntity> findByTaskId(String taskId);
 }

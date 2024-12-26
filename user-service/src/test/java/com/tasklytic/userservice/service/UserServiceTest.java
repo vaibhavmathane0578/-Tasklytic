@@ -1,6 +1,7 @@
 package com.tasklytic.userservice.service;
 
 import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.Exceptions;
 import com.tasklytic.userservice.dto.UserRegistrationDTO;
 import com.tasklytic.userservice.dto.UserRegistrationResponseDTO;
 import com.tasklytic.userservice.model.UserEntity;
@@ -88,7 +89,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(testUserDTO.getEmail())).thenReturn(Optional.of(testUser));
 
         // Assert exception is thrown
-        Exception exception = assertThrows(Constants.EmailAlreadyExistsException.class, () -> {
+        Exception exception = assertThrows(Exceptions.EmailAlreadyExistsException.class, () -> {
             userService.registerUser(testUserDTO);
         });
 
@@ -105,7 +106,7 @@ class UserServiceTest {
         when(userRepository.findByMobileNumber(testUserDTO.getMobileNumber())).thenReturn(Optional.of(testUser));
 
         // Assert exception is thrown
-        Exception exception = assertThrows(Constants.MobileAlreadyExistsException.class, () -> {
+        Exception exception = assertThrows(Exceptions.MobileAlreadyExistsException.class, () -> {
             userService.registerUser(testUserDTO);
         });
 

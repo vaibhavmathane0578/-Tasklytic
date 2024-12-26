@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tasklytic.shared.utils.JwtUtil;
 import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.Exceptions;
 import com.tasklytic.userservice.repository.UserRepository;
 import com.tasklytic.userservice.dto.*;
 import com.tasklytic.userservice.model.UserEntity;
@@ -48,10 +49,10 @@ public class UserServiceImpl implements UserService {
 			if (user.getStatus() == UserStatus.DELETED) {
 				boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
 				if (!isOtpVerified) {
-					throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
+					throw new Exceptions.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
 				}
 		        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-		            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+		            throw new Exceptions.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
 		        }
 				user.setFirstName(registerDTO.getFirstName());
 				user.setLastName(registerDTO.getLastName());
@@ -68,22 +69,22 @@ public class UserServiceImpl implements UserService {
 
 				return new UserRegistrationResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),user.getEmail(), token);
 			} else {
-				throw new Constants.EmailAlreadyExistsException(
+				throw new Exceptions.EmailAlreadyExistsException(
 						String.format(Constants.EMAIL_ALREADY_EXISTS, registerDTO.getEmail()));
 			}
 		}
 		boolean isOtpVerified = otpService.verifyEmailOtp(registerDTO.getEmail(), registerDTO.getOtp());
 		if (!isOtpVerified) {
-			throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED); // If OTP is not verified,
+			throw new Exceptions.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED); // If OTP is not verified,
 																							// throw exception
 		}
 		Optional<UserEntity> existingMobile = userRepository.findByMobileNumber(registerDTO.getMobileNumber());
 		if (existingMobile.isPresent()) {
-			throw new Constants.MobileAlreadyExistsException(
+			throw new Exceptions.MobileAlreadyExistsException(
 					String.format(Constants.MOBILE_ALREADY_EXISTS, registerDTO.getMobileNumber()));
 		}
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+            throw new Exceptions.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
         }
 		UserEntity user = new UserEntity();
 		user.setFirstName(registerDTO.getFirstName());
@@ -107,11 +108,11 @@ public class UserServiceImpl implements UserService {
 	public UserLoginResponseDTO loginUser(UserLoginDTO loginDTO) {
 		Optional<UserEntity> existingUser = userRepository.findByEmail(loginDTO.getEmail());
 		if (!existingUser.isPresent()) {
-			throw new Constants.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
+			throw new Exceptions.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
 		}
 		UserEntity user = existingUser.get();
 		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-			throw new Constants.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
+			throw new Exceptions.InvalidCredentialsException(Constants.INVALID_CREDENTIALS);
 		}
 		String token = generateJwtTokenForUser(user);
 		user.setStatus(UserStatus.ACTIVE);
@@ -126,7 +127,7 @@ public class UserServiceImpl implements UserService {
 	public void logoutUser(UUID userId) {
 		Optional<UserEntity> existingUser = userRepository.findById(userId);
 		if (!existingUser.isPresent()) {
-			throw new Constants.UserNotFoundException(String.format(Constants.USER_NOT_FOUND, userId));
+			throw new Exceptions.UserNotFoundException(String.format(Constants.USER_NOT_FOUND, userId));
 		}
 
 		UserEntity user = existingUser.get();
@@ -140,7 +141,7 @@ public class UserServiceImpl implements UserService {
 		// Check if user exists
 		Optional<UserEntity> userOpt = userRepository.findByEmail(otpRequestDTO.getEmail());
 		if (!userOpt.isPresent()) {
-			throw new Constants.UserNotFoundException(
+			throw new Exceptions.UserNotFoundException(
 					String.format(Constants.USER_NOT_FOUND, otpRequestDTO.getEmail()));
 		}
 		otpService.sendOtp(otpRequestDTO.getEmail());
@@ -150,7 +151,7 @@ public class UserServiceImpl implements UserService {
 	public void updateUserDetails(UpdateUserDTO updateUserDTO) {
 	    Optional<UserEntity> userOpt = userRepository.findById(updateUserDTO.getUserId());
 	    if (!userOpt.isPresent()) {
-	        throw new Constants.UserNotFoundException(
+	        throw new Exceptions.UserNotFoundException(
 	                String.format(Constants.USER_NOT_FOUND, updateUserDTO.getUserId()));
 	    }
 
@@ -163,7 +164,7 @@ public class UserServiceImpl implements UserService {
 	        
 	        isOtpVerified = otpService.verifyEmailOtp(user.getEmail(), updateUserDTO.getOtp());
 	        if (!isOtpVerified) {
-	            throw new Constants.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
+	            throw new Exceptions.EmailNotVerifiedException(Constants.EMAIL_NOT_VERIFIED);
 	        }
 	    }
 	    if (updateUserDTO.getFirstName() != null) {
@@ -182,7 +183,7 @@ public class UserServiceImpl implements UserService {
 	        if (updateUserDTO.getPassword().equals(updateUserDTO.getConfirmPassword())) {
 	            user.setPassword(passwordEncoder.encode(updateUserDTO.getPassword()));
 	        } else {
-	            throw new Constants.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
+	            throw new Exceptions.PasswordMismatchException(Constants.PASSWORD_MISMATCH);
 	        }
 	    }
 	    if (updateUserDTO.getRole() != null) {
@@ -203,7 +204,7 @@ public class UserServiceImpl implements UserService {
 	public void softDeleteUser(UUID userId) {
 		Optional<UserEntity> userOpt = userRepository.findById(userId);
 		if (!userOpt.isPresent()) {
-			throw new Constants.UserNotFoundException(String.format(Constants.USER_NOT_FOUND, userId));
+			throw new Exceptions.UserNotFoundException(String.format(Constants.USER_NOT_FOUND, userId));
 		}
 
 		UserEntity user = userOpt.get();

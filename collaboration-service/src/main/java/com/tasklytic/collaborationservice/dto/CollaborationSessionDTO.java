@@ -1,21 +1,31 @@
 package com.tasklytic.collaborationservice.dto;
 
-import lombok.*;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class CollaborationSessionDTO {
 
-    private String id; // Unique session ID
-    private Long taskId; // Associated task
-    private List<Long> participantIds; // List of participant IDs
-    private Instant startTime; // Start time of the session
-    private Instant endTime; // End time of the session
-    private String status; // Active or Ended
+    @NotNull(message = "Collaboration session ID is mandatory")
+    private String id; // Unique ID for the collaboration session
+    
+    @NotNull(message = "Creator ID is mandatory")
+    private String creatorId; // ID of the user who created the session
+    
+    @NotNull(message = "Participants list cannot be empty")
+    private List<String> participants; // List of participant IDs
+    
+    @NotNull(message = "Task ID is mandatory")
+    private String taskId; // ID of the related task
+    
+    @NotNull(message = "Creation timestamp is mandatory")
+    private LocalDateTime createdAt; // Timestamp when the session was created
+    
+    private LocalDateTime lastUpdatedAt; // Timestamp when the session was last updated
 }

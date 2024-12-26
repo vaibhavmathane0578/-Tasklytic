@@ -7,8 +7,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.tasklytic.shared.constants.Constants.Exceptions.UserNotFoundException;
+import com.tasklytic.shared.constants.Constants.Exceptions.EmailSendingExceptions;
+import com.tasklytic.shared.constants.Constants.Exceptions.EmailNotVerifiedException;
 import com.tasklytic.shared.constants.Constants;
-import com.tasklytic.shared.constants.Constants.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,8 +69,8 @@ public class GlobalExceptionHandler {
     }
     
     // Handle EmailSendingException
-    @ExceptionHandler(EmailSendingException.class)
-    public ResponseEntity<Object> handleEmailSendingException(EmailSendingException ex) {
+    @ExceptionHandler(EmailSendingExceptions.class)
+    public ResponseEntity<Object> handleEmailSendingException(EmailSendingExceptions ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("message", ex.getMessage());

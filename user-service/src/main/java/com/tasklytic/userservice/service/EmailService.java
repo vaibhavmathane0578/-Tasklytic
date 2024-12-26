@@ -5,6 +5,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.tasklytic.shared.constants.Constants;
+import com.tasklytic.shared.constants.Constants.Exceptions;
 
 import jakarta.mail.internet.MimeMessage;
 
@@ -36,8 +37,8 @@ public class EmailService {
         } catch (Exception ex) {
             // Log the error and rethrow a custom exception
             System.err.println("Failed to send email to " + email + ": " + ex.getMessage());
-            throw new Constants.EmailSendingException(
-                String.format(Constants.EMAIL_SENDING_FAILED, email)
+            throw new Exceptions.EmailSendingExceptions(
+                String.format(Constants.EMAIL_SENDING_ERROR, email)
             );
         }
     }

@@ -1,23 +1,41 @@
 package com.tasklytic.collaborationservice.controller;
 
-import com.tasklytic.collaborationservice.model.ChatMessageEntity;
-import com.tasklytic.collaborationservice.repository.ChatMessageRepository;
+import com.tasklytic.collaborationservice.dto.ChatMessageDTO;
+import com.tasklytic.collaborationservice.service.ChatMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/chats")
+@RequestMapping("/api/chat-history")
 public class ChatHistoryController {
 
-    private final ChatMessageRepository chatMessageRepository;
+    @Autowired
+    private ChatMessageService chatMessageService;
 
-    public ChatHistoryController(ChatMessageRepository chatMessageRepository) {
-        this.chatMessageRepository = chatMessageRepository;
+    // Get all chat messages for a specific collaboration session
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<List<ChatMessageDTO>> getChatHistoryBySessionId(@PathVariable String sessionId) {
+        List<ChatMessageDTO> messages = chatMessageService.getChatMessagesBySessionId(sessionId);
+        return ResponseEntity.ok(messages);
     }
 
-    @GetMapping("/{sessionId}")
-    public List<ChatMessageEntity> getChatHistory(@PathVariable Long sessionId) {
-        return chatMessageRepository.findBySessionId(sessionId);
+    // Get chat messages for a specific collaboration session and sender
+    @GetMapping("/session/{sessionId}/sender/{senderId}")
+    public ResponseEntity<List<ChatMessageDTO>> getChatHistoryBySessionIdAndSenderId(
+            @PathVariable String sessionId,
+            @PathVariable String senderId
+    ) {
+        List<ChatMessageDTO> messages = chatMessageService.getChatMessagesBySenderIdAndSessionId(sessionId, senderId);
+        return ResponseEntity.ok(messages);
+    }
+
+    // Delete all chat messages for a specific collaboration session
+    @DeleteMapping("/session/{sessionId}")
+    public ResponseEntity<String> deleteChatHistoryBySessionId(@PathVariable String sessionId) {
+        chatMessageService.deleteChatMessagesBySessionId(sessionId);
+        return ResponseEntity.ok("Chat history for session deleted successfully.");
     }
 }

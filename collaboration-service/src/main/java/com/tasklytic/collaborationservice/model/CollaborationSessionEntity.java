@@ -1,34 +1,24 @@
 package com.tasklytic.collaborationservice.model;
 
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 import lombok.*;
-import org.springframework.data.cassandra.core.mapping.*;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Table("collaboration_sessions")
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@Table("collaboration_sessions")
 public class CollaborationSessionEntity {
 
     @PrimaryKey
-    private String id; // UUID or a composite key for uniqueness in Cassandra
+    private String id; // Unique ID for the collaboration session
+    private String creatorId; // ID of the user who created the session
+    private List<String> participants; // List of participant IDs
+    private String taskId; // ID of the related task (from TaskService)
+    private LocalDateTime createdAt; // Timestamp when the session was created
+    private LocalDateTime lastUpdatedAt; // Timestamp when the session was last updated
 
-    @Column("task_id")
-    private Long taskId;
-
-    @Column("participants")
-    private List<Long> participants; // A set or list to store participant IDs
-
-    @Column("start_time")
-    private Instant startTime;
-
-    @Column("end_time")
-    private Instant endTime;
-
-    @Column("status")
-    private String status; // e.g., "Active", "Ended"
 }
