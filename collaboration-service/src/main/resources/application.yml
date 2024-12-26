@@ -1,26 +1,48 @@
 spring:
   application:
-    name: collaboration-service                     # Unique name for this microservice
+    name: collaboration-service # Name of the microservice
 
   datasource:
-    url: jdbc:mysql://localhost:3306/collaboration_db     # MySQL database URL
-    username: root                               # MySQL username
-    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL driver
+    url: jdbc:mysql://localhost:3306/collaboration_db # Database URL (change "localhost" if needed)
+    username: root # MySQL username
+    password: # MySQL password (replace with your actual password)
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC driver
 
   jpa:
     hibernate:
-      ddl-auto: update                           # Automatically updates the database schema
-      dialect:  org.hibernate.dialect.MySQL5InnoDBDialect   # MySQL dialect for Hibernate (for MySQL 8+)
-    show-sql: true                               # Show SQL queries for debugging
+      ddl-auto: update # Automatically update schema (use "validate" or "none" for production)
+      dialect: org.hibernate.dialect.MySQL8Dialect # Use MySQL 8 dialect for better compatibility
+    show-sql: true # Display SQL queries
     properties:
-      hibernate.format_sql: true                 # Formats SQL queries for better readability
-      hibernate.use_sql_comments: true           # Add SQL comments in the generated queries
+      hibernate.format_sql: true # Format SQL for better readability
+      hibernate.use_sql_comments: true # Include comments in SQL for debugging
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/collaboration_db # MongoDB connection URI
 
 server:
-  port: 8083  # Set server port to 8082
+  port: 8083 # Port for the collaboration-service
+
+kafka:
+  bootstrap-servers: localhost:9092 # Kafka server address
+  topic:
+    chat-messages: chat_messages_topic # Topic for chat messages
 
 logging:
   level:
-    org.springframework: INFO                   # General Spring log level
-    org.hibernate.SQL: DEBUG                    # Log SQL queries at the DEBUG level
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Log SQL parameters
+    org.springframework: INFO # General Spring logs
+    org.hibernate.SQL: DEBUG # SQL queries
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Log SQL bind parameters
+
+websocket:
+  endpoint: /ws/chat # WebSocket endpoint for chat
+  allowed-origins: # Allowed origins for WebSocket connections
+    - http://localhost:3000 # Frontend domain (add others if needed)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus # Expose health, info, and Prometheus endpoints
+
